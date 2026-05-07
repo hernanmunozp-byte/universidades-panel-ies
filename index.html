@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IES Chile — Panel Financiero 2024 · Matrícula 2025</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
+    --border: #2e3347; --text: #e2e8f0; --muted: #8892a4;
+    --accent: #6366f1; --accent2: #818cf8;
+    --green: #22c55e; --yellow: #eab308; --orange: #f97316;
+    --red: #ef4444; --blue: #3b82f6; --teal: #14b8a6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a5f 100%); padding: 24px 32px 20px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: #fff; }
+  .header p { color: #a5b4fc; font-size: 13px; margin-top: 4px; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  .stats { display: flex; gap: 12px; padding: 20px 32px; flex-wrap: wrap; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; min-width: 130px; flex: 1; }
+  .stat-card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .stat-card .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stat-card.blue .value   { color: #60a5fa; }
+  .stat-card.green .value  { color: var(--green); }
+  .stat-card.purple .value { color: #c084fc; }
+  .stat-card.teal .value   { color: var(--teal); }
+  .stat-card.orange .value { color: var(--orange); }
+  .stat-card.red .value    { color: #f87171; }
+
+  .controls { display: flex; align-items: center; gap: 10px; padding: 0 32px 16px; flex-wrap: wrap; }
+  input[type=text] { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 14px; font-size: 13px; outline: none; width: 240px; transition: border-color 0.2s; }
+  input[type=text]:focus { border-color: var(--accent); }
+  select { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 13px; outline: none; cursor: pointer; }
+  select:focus { border-color: var(--accent); }
+  .btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+  .btn:hover { background: var(--border); }
+  .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .count-label { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+  .tipo-checks { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tipo-checks label {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 11px; font-size: 12px;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .tipo-checks input[type=checkbox] { display: none; }
+  .tipo-checks label:has(input:checked) { border-color: var(--accent); background: rgba(99,102,241,.18); color: #c4b5fd; }
+  .tipo-checks label:hover { border-color: var(--accent2); }
+
+  .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--surface2); }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--text); }
+  th .sort-icon { opacity: 0.4; margin-left: 4px; }
+  th.sorted .sort-icon { opacity: 1; color: var(--accent2); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 10px 12px; vertical-align: middle; }
+  .ies-name { font-weight: 500; color: var(--text); }
+  .ies-sub { color: var(--muted); font-size: 12px; }
+
+  .badge { display: inline-block; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-green  { background: rgba(34,197,94,.15);  color: #4ade80; }
+  .badge-red    { background: rgba(239,68,68,.15);   color: #f87171; }
+  .badge-yellow { background: rgba(234,179,8,.15);   color: #fbbf24; }
+  .badge-orange { background: rgba(249,115,22,.15);  color: #fb923c; }
+  .badge-gray   { background: rgba(148,163,184,.1);  color: #94a3b8; }
+  .badge-blue   { background: rgba(59,130,246,.15);  color: #60a5fa; }
+  .badge-purple { background: rgba(99,102,241,.15);  color: #818cf8; }
+  .badge-teal   { background: rgba(20,184,166,.15);  color: #2dd4bf; }
+  .badge-indigo { background: rgba(99,102,241,.12);  color: #a78bfa; }
+  .badge-pink   { background: rgba(236,72,153,.15);  color: #f472b6; }
+
+  .acred-bar { display: flex; align-items: center; gap: 6px; }
+  .acred-stars { display: flex; gap: 2px; }
+  .acred-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+  .acred-dot.filled.c7 { background: #22c55e; }
+  .acred-dot.filled.c6 { background: #84cc16; }
+  .acred-dot.filled.c5 { background: #eab308; }
+  .acred-dot.filled.c4 { background: #f97316; }
+  .acred-dot.filled.c3 { background: #ef4444; }
+  .acred-num { font-size: 12px; color: var(--muted); width: 14px; }
+
+  .margen-pos  { color: #4ade80; font-weight: 500; }
+  .margen-neg  { color: #f87171; font-weight: 500; }
+  .margen-zero { color: var(--muted); }
+
+  .red-G9     { background: rgba(99,102,241,.15); color: #a78bfa; }
+  .red-CRUCH  { background: rgba(99,102,241,.15); color: #a78bfa; }
+  .red-CUECH  { background: rgba(20,184,166,.15); color: #2dd4bf; }
+  .red-CUP    { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .red-Privada { background: rgba(148,163,184,.1); color: #94a3b8; }
+
+  .cards-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 0 32px 32px; }
+  .cards-grid.active { display: grid; }
+  .table-wrap.hidden { display: none; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: border-color 0.2s; }
+  .card:hover { border-color: var(--accent); }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .card-acronimo { width: 46px; height: 46px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--accent2); text-align: center; line-height: 1.2; flex-shrink: 0; }
+  .card-name { font-weight: 600; font-size: 13px; line-height: 1.4; flex: 1; padding-left: 10px; }
+  .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .card-stat-item { background: var(--surface2); border-radius: 7px; padding: 8px 10px; }
+  .card-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .card-stat-value { font-size: 15px; font-weight: 700; margin-top: 2px; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-wrap: wrap; gap: 6px; }
+  .hidden { display: none; }
+
+  @media (max-width: 768px) {
+    .header, .stats, .controls, .table-wrap, .cards-grid { padding-left: 16px; padding-right: 16px; }
+    .stat-card { min-width: 110px; }
+    input[type=text] { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <h1>IES Chile — Panel Financiero 2024 · Matrícula 2025</h1>
+      <p>Universidades · CFTs · Institutos Profesionales · Datos MINEDUC/SIES 2024 · Matrícula SIES 2025</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn active" id="btnTable" onclick="setView('table')">☰ Tabla</button>
+      <button class="btn" id="btnCards" onclick="setView('cards')">⊞ Tarjetas</button>
+    </div>
+  </div>
+</div>
+
+<div class="stats" id="statsBar"></div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="🔍  Buscar institución..." oninput="applyFilters()">
+  <div class="tipo-checks">
+    <label><input type="checkbox" value="univ_cruch" onchange="applyFilters()"> Univ. CRUCH</label>
+    <label><input type="checkbox" value="univ_priv"  onchange="applyFilters()"> Univ. Privadas</label>
+    <label><input type="checkbox" value="ip"         onchange="applyFilters()"> Inst. Prof.</label>
+    <label><input type="checkbox" value="cft"        onchange="applyFilters()"> CFT</label>
+  </div>
+  <select id="filterGrat" onchange="applyFilters()">
+    <option value="">Gratuidad: todas</option>
+    <option value="Si">Con gratuidad</option>
+    <option value="No">Sin gratuidad</option>
+  </select>
+  <select id="filterRed" onchange="applyFilters()">
+    <option value="">Red: todas</option>
+    <option value="G9">G9</option>
+    <option value="CUECH">CUECH</option>
+    <option value="CUP">CUP</option>
+    <option value="Privada">Privada</option>
+  </select>
+  <select id="filterMargen" onchange="applyFilters()">
+    <option value="">Margen: todos</option>
+    <option value="pos">Con ganancia</option>
+    <option value="neg">Con pérdida</option>
+  </select>
+  <button class="btn" onclick="clearFilters()">✕ Limpiar</button>
+  <span class="count-label" id="countLabel"></span>
+</div>
+
+<div class="table-wrap" id="tableWrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th onclick="sortBy('n')" data-col="n">Institución <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('tipo')" data-col="tipo">Tipo <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('m')" data-col="m" style="text-align:right">Matrícula <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('acred')" data-col="acred">Acreditación <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('g')" data-col="g">Gratuidad <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('r')" data-col="r">Red <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('ing')" data-col="ing" style="text-align:right">Ingresos op. <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('act')" data-col="act" style="text-align:right">Activos <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('mg')" data-col="mg" style="text-align:right">Margen op. <span class="sort-icon">↕</span></th>
+        <th onclick="sortBy('gan')" data-col="gan" style="text-align:right">Resultado <span class="sort-icon">↕</span></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="cards-grid" id="cardsGrid"></div>
+
+<script>
+const DATA = [
+  { sies:'20', n:"Universidad Andrés Bello", a:'UNAB', tipo:'univ_priv', s:'Santiago', m:'72,385', acred:6, g:'No', r:'', ing:334, mg:11.2, act:822, gan:56 },
+  { sies:'100', n:"IP INACAP", a:'INACAP', tipo:'ip', s:'', m:'61,410', acred:-1, g:'', r:'', ing:171, mg:19.7, act:335, gan:45 },
+  { sies:'86', n:"Pontificia Universidad Católica de Chile", a:'PUC', tipo:'univ_cruch', s:'Santiago', m:'55,730', acred:7, g:'Si', r:'G9', ing:461, mg:4.7, act:935, gan:35 },
+  { sies:'430', n:"CFT INACAP", a:'CFT INACAP', tipo:'cft', s:'', m:'50,433', acred:-1, g:'', r:'', ing:120, mg:11.7, act:302, gan:28 },
+  { sies:'31', n:"Universidad Autónoma de Chile", a:'UA', tipo:'univ_priv', s:'Temuco', m:'41,899', acred:5, g:'Si', r:'CUP', ing:152, mg:9.7, act:383, gan:27 },
+  { sies:'111', n:"IP Duoc UC", a:'DUOC UC', tipo:'ip', s:'', m:'108,955', acred:-1, g:'', r:'', ing:299, mg:5.9, act:467, gan:26 },
+  { sies:'39', n:"Universidad San Sebastián", a:'USS', tipo:'univ_priv', s:'Santiago', m:'52,974', acred:5, g:'No', r:'CUP', ing:258, mg:11.5, act:323, gan:21 },
+  { sies:'87', n:"Universidad de Concepción", a:'UdeC', tipo:'univ_cruch', s:'Concepción', m:'28,017', acred:7, g:'Si', r:'G9', ing:287, mg:5.9, act:587, gan:19 },
+  { sies:'143', n:"IP AIEP", a:'AIEP', tipo:'ip', s:'', m:'81,655', acred:-1, g:'', r:'', ing:174, mg:11.5, act:250, gan:18 },
+  { sies:'89', n:"Pontificia Universidad Católica de Valparaíso", a:'PUCV', tipo:'univ_cruch', s:'Valparaíso', m:'20,167', acred:6, g:'Si', r:'G9', ing:139, mg:7.8, act:264, gan:18 },
+  { sies:'80', n:"Universidad de Tarapacá", a:'UTA', tipo:'univ_cruch', s:'Arica', m:'10,848', acred:6, g:'Si', r:'CUECH', ing:73, mg:11.5, act:280, gan:14 },
+  { sies:'116', n:"IP Santo Tomás", a:'IP Santo Tomás', tipo:'ip', s:'', m:'30,730', acred:-1, g:'', r:'', ing:60, mg:25.4, act:117, gan:12 },
+  { sies:'19', n:"Universidad de las Américas", a:'UDLA', tipo:'univ_priv', s:'Santiago', m:'34,925', acred:5, g:'Si', r:'CUP', ing:117, mg:7.9, act:141, gan:8 },
+  { sies:'895', n:"Universidad de O'Higgins", a:'UOH', tipo:'univ_cruch', s:'Rancagua', m:'8,953', acred:4, g:'Si', r:'CUECH', ing:43, mg:19.4, act:71, gan:8 },
+  { sies:'260', n:"CFT Santo Tomás", a:'CFT ST', tipo:'cft', s:'', m:'39,233', acred:-1, g:'', r:'', ing:74, mg:15.5, act:116, gan:7 },
+  { sies:'117', n:"IP Instituto Profesional IACC", a:'IACC', tipo:'ip', s:'', m:'32,951', acred:-1, g:'', r:'', ing:35, mg:21.7, act:53, gan:6 },
+  { sies:'88', n:"Universidad Técnica Federico Santa María", a:'USM', tipo:'univ_cruch', s:'Valparaíso', m:'22,958', acred:6, g:'Si', r:'G9', ing:140, mg:2.8, act:283, gan:6 },
+  { sies:'93', n:"Universidad Católica de La Santísima Concepción", a:'UCSC', tipo:'univ_cruch', s:'Concepción', m:'16,576', acred:5, g:'Si', r:'G9', ing:71, mg:8.6, act:109, gan:5 },
+  { sies:'79', n:"Universidad de Atacama", a:'UDA', tipo:'univ_cruch', s:'Copiapó', m:'8,144', acred:4, g:'Si', r:'CUECH', ing:35, mg:12.8, act:94, gan:5 },
+  { sies:'70', n:"Universidad de Chile", a:'UCh', tipo:'univ_cruch', s:'Santiago', m:'54,202', acred:7, g:'Si', r:'CUECH', ing:631, mg:-1.7, act:983, gan:5 },
+  { sies:'50', n:"Universidad Bernardo O'Higgins", a:'UBO', tipo:'univ_priv', s:'Santiago', m:'8,858', acred:5, g:'Si', r:'CUP', ing:34, mg:15.2, act:69, gan:5 },
+  { sies:'152', n:"IP Latinoamericano de Comercio Exterior - IPLACEX", a:'IPLACEX', tipo:'ip', s:'', m:'52,137', acred:-1, g:'', r:'', ing:47, mg:13.1, act:25, gan:5 },
+  { sies:'84', n:"Universidad de Los Lagos", a:'ULAGOS', tipo:'univ_cruch', s:'Osorno', m:'11,390', acred:5, g:'Si', r:'CUECH', ing:53, mg:10.3, act:109, gan:4 },
+  { sies:'123', n:"IP de Chile", a:'IPC', tipo:'ip', s:'', m:'21,477', acred:-1, g:'', r:'', ing:38, mg:18.3, act:54, gan:4 },
+  { sies:'78', n:"Universidad de Talca", a:'UTAL', tipo:'univ_cruch', s:'Talca', m:'12,654', acred:6, g:'Si', r:'CUECH', ing:94, mg:2.5, act:229, gan:4 },
+  { sies:'9', n:"Universidad del Alba", a:'UDALBA', tipo:'univ_priv', s:'Santiago', m:'9,296', acred:3, g:'No', r:'CUP', ing:33, mg:11.6, act:43, gan:4 },
+  { sies:'74', n:"Universidad de La Serena", a:'ULS', tipo:'univ_cruch', s:'La Serena', m:'7,763', acred:5, g:'Si', r:'CUECH', ing:47, mg:4.4, act:148, gan:4 },
+  { sies:'85', n:"Universidad Tecnológica Metropolitana", a:'UTEM', tipo:'univ_cruch', s:'Santiago', m:'8,546', acred:4, g:'Si', r:'CUECH', ing:50, mg:2.5, act:161, gan:4 },
+  { sies:'92', n:"Universidad Católica del Maule", a:'UCM', tipo:'univ_cruch', s:'Talca', m:'13,968', acred:5, g:'Si', r:'G9', ing:73, mg:5.3, act:225, gan:4 },
+  { sies:'106', n:"IP Providencia", a:'IPP', tipo:'ip', s:'', m:'14,341', acred:-1, g:'', r:'', ing:19, mg:18.2, act:15, gan:4 },
+  { sies:'139', n:"IP Dr. Virginio Gómez G.", a:'IPVGG', tipo:'ip', s:'', m:'8,776', acred:-1, g:'', r:'', ing:18, mg:19.4, act:44, gan:3 },
+  { sies:'23', n:"Universidad Adolfo Ibáñez", a:'UAI', tipo:'univ_priv', s:'Santiago', m:'14,038', acred:6, g:'No', r:'', ing:111, mg:12.6, act:200, gan:3 },
+  { sies:'94', n:"Universidad Católica de Temuco", a:'UCT', tipo:'univ_cruch', s:'Temuco', m:'11,804', acred:5, g:'Si', r:'G9', ing:62, mg:6.5, act:96, gan:3 },
+  { sies:'4', n:"Universidad Central de Chile", a:'UCEN', tipo:'univ_priv', s:'Santiago', m:'17,338', acred:5, g:'Si', r:'CUP', ing:57, mg:4.5, act:164, gan:3 },
+  { sies:'896', n:"Universidad de Aysén", a:'UAY', tipo:'univ_cruch', s:'Coyhaique', m:'793', acred:3, g:'Si', r:'CUECH', ing:11, mg:18.4, act:32, gan:2 },
+  { sies:'26', n:"Universidad de Artes, Ciencias y Comunicación - UNIACC", a:'UNIACC', tipo:'univ_priv', s:'Santiago', m:'6,893', acred:-1, g:'', r:'', ing:21, mg:10.4, act:50, gan:2 },
+  { sies:'629', n:"CFT PUCV", a:'CFT PUCV', tipo:'cft', s:'', m:'8,316', acred:-1, g:'', r:'', ing:14, mg:13.7, act:20, gan:2 },
+  { sies:'73', n:"Universidad de Antofagasta", a:'UA', tipo:'univ_cruch', s:'Antofagasta', m:'7,279', acred:5, g:'Si', r:'CUECH', ing:64, mg:4.2, act:128, gan:2 },
+  { sies:'82', n:"Universidad Metropolitana de Ciencias de la Educación", a:'UMCE', tipo:'univ_cruch', s:'Santiago', m:'4,278', acred:4, g:'Si', r:'CUECH', ing:31, mg:4.9, act:68, gan:1 },
+  { sies:'914', n:"CFT de la Región del Maule", a:'CFT Maule', tipo:'cft', s:'Talca', m:'1,447', acred:-1, g:'', r:'', ing:4, mg:40.2, act:11, gan:1 },
+  { sies:'113', n:"IP IPG", a:'IPG', tipo:'ip', s:'', m:'6,035', acred:-1, g:'', r:'', ing:5, mg:21.7, act:6, gan:1 },
+  { sies:'45', n:"Universidad del Desarrollo", a:'UDD', tipo:'univ_priv', s:'Concepción', m:'23,008', acred:6, g:'No', r:'', ing:150, mg:3.1, act:196, gan:1 },
+  { sies:'144', n:"IP de Arte y Comunicación - ARCOS", a:'ARCOS', tipo:'ip', s:'', m:'1,963', acred:-1, g:'', r:'', ing:14, mg:15.3, act:25, gan:1 },
+  { sies:'71', n:"Universidad de Santiago de Chile", a:'USACh', tipo:'univ_cruch', s:'Santiago', m:'26', acred:7, g:'Si', r:'CUECH', ing:161, mg:0.7, act:261, gan:1 },
+  { sies:'3', n:"Universidad Diego Portales", a:'UDP', tipo:'univ_priv', s:'Santiago', m:'22,187', acred:6, g:'Si', r:'Privada', ing:99, mg:2.9, act:222, gan:1 },
+  { sies:'10', n:"Universidad Mayor", a:'U.Mayor', tipo:'univ_priv', s:'Santiago', m:'24,964', acred:5, g:'Si', r:'', ing:120, mg:7.8, act:173, gan:1 },
+  { sies:'38', n:"Universidad Adventista de Chile", a:'UnACh', tipo:'univ_priv', s:'Chillán', m:'2,823', acred:3, g:'No', r:'CUP', ing:12, mg:9.2, act:15, gan:1 },
+  { sies:'456', n:"CFT CEDUC - UCN", a:'CEDUC', tipo:'cft', s:'Antofagasta', m:'6,221', acred:-1, g:'', r:'', ing:12, mg:14, act:39, gan:1 },
+  { sies:'69', n:"Universidad Alberto Hurtado", a:'UAH', tipo:'univ_priv', s:'Santiago', m:'8,960', acred:5, g:'Si', r:'Privada', ing:43, mg:4.4, act:47, gan:1 },
+  { sies:'11', n:"Universidad Academia de Humanismo Cristiano", a:'UAHC', tipo:'univ_priv', s:'Santiago', m:'4,207', acred:4, g:'Si', r:'CUP', ing:15, mg:10.2, act:17, gan:1 },
+  { sies:'81', n:"Universidad Arturo Prat", a:'UNAP', tipo:'univ_cruch', s:'Iquique', m:'9,819', acred:5, g:'Si', r:'CUECH', ing:41, mg:2.2, act:188, gan:1 },
+  { sies:'919', n:"CFT de la Región de Aysén", a:'CFT Aysén', tipo:'cft', s:'Aysén', m:'633', acred:-1, g:'', r:'', ing:2, mg:24.6, act:8, gan:1 },
+  { sies:'22', n:"Universidad de Viña del Mar", a:'UVM', tipo:'univ_priv', s:'Viña del Mar', m:'10,806', acred:4, g:'No', r:'CUP', ing:37, mg:3.1, act:29, gan:1 },
+  { sies:'68', n:"Universidad Miguel de Cervantes", a:'UMC', tipo:'univ_priv', s:'Santiago', m:'3,252', acred:3, g:'No', r:'CUP', ing:4, mg:8.8, act:8, gan:1 },
+  { sies:'367', n:"CFT San Agustín", a:'CFT S.Agustín', tipo:'cft', s:'', m:'7,591', acred:-1, g:'', r:'', ing:14, mg:5.8, act:23, gan:0 },
+  { sies:'917', n:"CFT de la Región de Los Ríos", a:'CFT Los Ríos', tipo:'cft', s:'Los Ríos', m:'1,596', acred:-1, g:'', r:'', ing:4, mg:10, act:10, gan:0 },
+  { sies:'91', n:"Universidad Católica del Norte", a:'UCN', tipo:'univ_cruch', s:'Antofagasta', m:'12,329', acred:6, g:'Si', r:'G9', ing:87, mg:1, act:241, gan:0 },
+  { sies:'17', n:"Universidad SEK", a:'USEK', tipo:'univ_priv', s:'Santiago', m:'2,653', acred:0, g:'No', r:'CUP', ing:9, mg:-0.1, act:22, gan:0 },
+  { sies:'176', n:"IP del Valle Central", a:'IVC', tipo:'ip', s:'', m:'1,565', acred:-1, g:'', r:'', ing:3, mg:10.6, act:14, gan:0 },
+  { sies:'13', n:"Universidad Santo Tomás", a:'UST', tipo:'univ_priv', s:'Santiago', m:'28,971', acred:4, g:'Si', r:'CUP', ing:115, mg:5.1, act:181, gan:0 },
+  { sies:'730', n:"CFT Escuela Culinaria Francesa - ECOLE", a:'ECOLE', tipo:'cft', s:'', m:'211', acred:-1, g:'', r:'', ing:2, mg:14.3, act:3, gan:0 },
+  { sies:'129', n:"IP Escuela Moderna de Música", a:'EMM', tipo:'ip', s:'', m:'843', acred:-1, g:'', r:'', ing:5, mg:8.1, act:7, gan:0 },
+  { sies:'676', n:"IP Instituto Internacional de Artes Culinarias y Servicios", a:'IIAC', tipo:'ip', s:'', m:'604', acred:-1, g:'', r:'', ing:4, mg:7.1, act:4, gan:0 },
+  { sies:'916', n:"CFT de la Región de La Araucanía", a:'CFT Araucanía', tipo:'cft', s:'Araucanía', m:'1,886', acred:-1, g:'', r:'', ing:3, mg:10, act:9, gan:0 },
+  { sies:'218', n:"CFT de ENAC", a:'ENAC', tipo:'cft', s:'', m:'8,890', acred:-1, g:'', r:'', ing:14, mg:7.8, act:34, gan:0 },
+  { sies:'104', n:"IP Escuela de Contadores Auditores de Santiago", a:'ECAS', tipo:'ip', s:'', m:'1,895', acred:-1, g:'', r:'', ing:4, mg:7.2, act:7, gan:0 },
+  { sies:'910', n:"CFT de la Región de Coquimbo", a:'CFT Coquimbo', tipo:'cft', s:'Coquimbo', m:'1,496', acred:-1, g:'', r:'', ing:3, mg:8.5, act:6, gan:0 },
+  { sies:'312', n:"CFT CENCO", a:'CENCO', tipo:'cft', s:'', m:'5,190', acred:-1, g:'', r:'', ing:3, mg:9.9, act:2, gan:0 },
+  { sies:'120', n:"IP Diego Portales", a:'IPDP', tipo:'ip', s:'', m:'2,039', acred:-1, g:'', r:'', ing:3, mg:9.8, act:6, gan:0 },
+  { sies:'99', n:"IP Agrario Adolfo Matthei", a:'IPAM', tipo:'ip', s:'', m:'825', acred:-1, g:'', r:'', ing:3, mg:5.1, act:6, gan:0 },
+  { sies:'1', n:"Universidad Gabriela Mistral", a:'UGM', tipo:'univ_priv', s:'Santiago', m:'4,687', acred:3, g:'No', r:'CUP', ing:14, mg:4.9, act:13, gan:0 },
+  { sies:'46', n:"Universidad de Aconcagua", a:'UAC', tipo:'univ_priv', s:'Santiago', m:'3,842', acred:0, g:'No', r:'', ing:8, mg:1.3, act:9, gan:0 },
+  { sies:'137', n:"IP EATRI", a:'EATRI', tipo:'ip', s:'', m:'801', acred:-1, g:'', r:'', ing:2, mg:15, act:3, gan:0 },
+  { sies:'908', n:"CFT de la Región de Antofagasta", a:'CFT Antofagasta', tipo:'cft', s:'Antofagasta', m:'526', acred:-1, g:'', r:'', ing:2, mg:10.3, act:7, gan:0 },
+  { sies:'693', n:"IP Projazz", a:'Projazz', tipo:'ip', s:'', m:'390', acred:-1, g:'', r:'', ing:1, mg:13.4, act:2, gan:0 },
+  { sies:'450', n:"CFT Lota-Arauco", a:'Lota-Arauco', tipo:'cft', s:'', m:'2,022', acred:-1, g:'', r:'', ing:3, mg:0.8, act:4, gan:0 },
+  { sies:'171', n:"IP del Comercio", a:'IPC', tipo:'ip', s:'', m:'7,102', acred:-1, g:'', r:'', ing:5, mg:5.2, act:5, gan:0 },
+  { sies:'75', n:"Universidad del Bío-Bío", a:'UBB', tipo:'univ_cruch', s:'Concepción', m:'12,051', acred:5, g:'Si', r:'CUECH', ing:71, mg:2.9, act:116, gan:0 },
+  { sies:'193', n:"IP Instituto Nacional del Futbol", a:'INF', tipo:'ip', s:'', m:'822', acred:-1, g:'', r:'', ing:2, mg:4.8, act:2, gan:0 },
+  { sies:'902', n:"CFT de la Región de Arica y Parinacota", a:'CFT Arica', tipo:'cft', s:'Arica', m:'2,816', acred:-1, g:'', r:'', ing:5, mg:3.7, act:18, gan:0 },
+  { sies:'911', n:"CFT de la Región de Valparaíso", a:'CFT Valparaíso', tipo:'cft', s:'Valparaíso', m:'1,934', acred:-1, g:'', r:'', ing:4, mg:3.1, act:8, gan:0 },
+  { sies:'257', n:"CFT Juan Bohon", a:'J.Bohon', tipo:'cft', s:'', m:'1,219', acred:-1, g:'', r:'', ing:2, mg:6.8, act:1, gan:0 },
+  { sies:'534', n:"CFT Asiste", a:'Asiste', tipo:'cft', s:'', m:'323', acred:-1, g:'', r:'', ing:0, mg:35.6, act:0, gan:0 },
+  { sies:'155', n:"IP Los Leones", a:'IPLL', tipo:'ip', s:'', m:'3,116', acred:-1, g:'', r:'', ing:5, mg:4.3, act:32, gan:0 },
+  { sies:'915', n:"CFT de la Región del Biobío", a:'CFT Biobío', tipo:'cft', s:'Biobío', m:'635', acred:-1, g:'', r:'', ing:2, mg:2.7, act:2, gan:0 },
+  { sies:'241', n:"CFT Instituto Superior Alemán de Comercio - INSALCO", a:'INSALCO', tipo:'cft', s:'', m:'76', acred:-1, g:'', r:'', ing:0, mg:7.7, act:0, gan:0 },
+  { sies:'83', n:"Universidad de Playa Ancha de Ciencias de la Educación", a:'UPLA', tipo:'univ_cruch', s:'Valparaíso', m:'6,798', acred:5, g:'Si', r:'CUECH', ing:41, mg:1.8, act:74, gan:0 },
+  { sies:'435', n:"CFT del Medio Ambiente - IDMA", a:'IDMA', tipo:'cft', s:'', m:'604', acred:-1, g:'', r:'', ing:1, mg:6.8, act:3, gan:0 },
+  { sies:'951', n:"IP Ciceron", a:'Ciceron', tipo:'ip', s:'', m:'38', acred:-1, g:'', r:'', ing:0, mg:7, act:0, gan:0 },
+  { sies:'382', n:"CFT Alpes", a:'Alpes', tipo:'cft', s:'', m:'191', acred:-1, g:'', r:'', ing:0, mg:10.3, act:0, gan:0 },
+  { sies:'427', n:"CFT Laplace", a:'Laplace', tipo:'cft', s:'', m:'563', acred:-1, g:'', r:'', ing:0, mg:1.7, act:0, gan:0 },
+  { sies:'236', n:"CFT Centro Tecnológico Superior Infomed", a:'Infomed', tipo:'cft', s:'', m:'', acred:-1, g:'', r:'', ing:0, mg:3.3, act:0, gan:0 },
+  { sies:'691', n:"CFT Profasoc", a:'Profasoc', tipo:'cft', s:'', m:'14', acred:-1, g:'', r:'', ing:0, mg:6.6, act:0, gan:0 },
+  { sies:'101', n:"IP Libertador de Los Andes", a:'IPLA', tipo:'ip', s:'', m:'88', acred:-1, g:'', r:'', ing:0, mg:-11.2, act:0, gan:0 },
+  { sies:'319', n:"CFT Prodata", a:'Prodata', tipo:'cft', s:'', m:'176', acred:-1, g:'', r:'', ing:0, mg:-14.3, act:0, gan:0 },
+  { sies:'328', n:"CFT Instituto Superior de Estudios Jurídicos Canon", a:'Canon', tipo:'cft', s:'', m:'54', acred:-1, g:'', r:'', ing:0, mg:-57.4, act:0, gan:0 },
+  { sies:'331', n:"CFT Iprosec", a:'Iprosec', tipo:'cft', s:'', m:'44', acred:-1, g:'', r:'', ing:0, mg:-10.3, act:2, gan:0 },
+  { sies:'920', n:"CFT de la Región de Magallanes y la Antártica Chilena", a:'CFT Magallanes', tipo:'cft', s:'Magallanes', m:'182', acred:-1, g:'', r:'', ing:2, mg:-3.7, act:4, gan:0 },
+  { sies:'701', n:"CFT Manpower", a:'Manpower', tipo:'cft', s:'', m:'1,110', acred:-1, g:'', r:'', ing:2, mg:-4.3, act:1, gan:0 },
+  { sies:'959', n:"CFT Academia Chilena de Yoga", a:'Yoga', tipo:'cft', s:'', m:'94', acred:-1, g:'', r:'', ing:0, mg:-48.1, act:0, gan:0 },
+  { sies:'918', n:"CFT de la Región de Los Lagos", a:'CFT Los Lagos', tipo:'cft', s:'Los Lagos', m:'644', acred:-1, g:'', r:'', ing:2, mg:-11.3, act:6, gan:0 },
+  { sies:'912', n:"CFT de la Región Metropolitana", a:'CFT RM', tipo:'cft', s:'Santiago', m:'959', acred:-1, g:'', r:'', ing:1, mg:-16.1, act:5, gan:0 },
+  { sies:'48', n:"Universidad Los Leones", a:'ULLEO', tipo:'univ_priv', s:'Santiago', m:'200', acred:0, g:'No', r:'', ing:0, mg:-100, act:2, gan:0 },
+  { sies:'633', n:"CFT Teodoro Wickel Kluwen", a:'Wickel', tipo:'cft', s:'', m:'312', acred:-1, g:'', r:'', ing:4, mg:-5.6, act:1, gan:0 },
+  { sies:'906', n:"CFT de la Región de Tarapacá", a:'CFT Tarapacá', tipo:'cft', s:'Tarapacá', m:'1,778', acred:-1, g:'', r:'', ing:3, mg:-8, act:8, gan:0 },
+  { sies:'7', n:"Universidad Bolivariana", a:'UB', tipo:'univ_priv', s:'Santiago', m:'294', acred:0, g:'No', r:'', ing:1, mg:-43, act:2, gan:0 },
+  { sies:'913', n:"CFT de la Región del Libertador Bernardo O'Higgins", a:"CFT O'Higgins", tipo:'cft', s:"O'Higgins", m:'1,599', acred:-1, g:'', r:'', ing:2, mg:-16.1, act:5, gan:0 },
+  { sies:'909', n:"CFT de la Región de Atacama", a:'CFT Atacama', tipo:'cft', s:'Atacama', m:'402', acred:-1, g:'', r:'', ing:1, mg:-34.9, act:9, gan:0 },
+  { sies:'2', n:"Universidad Finis Terrae", a:'UFT', tipo:'univ_priv', s:'Santiago', m:'10,468', acred:5, g:'Si', r:'CUP', ing:45, mg:1.1, act:97, gan:0 },
+  { sies:'162', n:"IP San Sebastián", a:'IPSS', tipo:'ip', s:'', m:'2,522', acred:-1, g:'', r:'', ing:3, mg:-14.5, act:2, gan:-1 },
+  { sies:'132', n:"IP ESUCOMEX", a:'ESUCOMEX', tipo:'ip', s:'', m:'', acred:-1, g:'', r:'', ing:0, mg:-252, act:1, gan:-1 },
+  { sies:'108', n:"IP Chileno Británico de Cultura", a:'IPBC', tipo:'ip', s:'', m:'329', acred:-1, g:'', r:'', ing:1, mg:-121, act:1, gan:-1 },
+  { sies:'426', n:"CFT Escuela de Comercio", a:'Esc.Comercio', tipo:'cft', s:'', m:'89', acred:-1, g:'', r:'', ing:1, mg:-143, act:2, gan:-1 },
+  { sies:'42', n:"Universidad Católica Cardenal Raúl Silva Henríquez", a:'UCSH', tipo:'univ_priv', s:'Santiago', m:'5,827', acred:4, g:'Si', r:'CUP', ing:23, mg:-6.9, act:27, gan:-2 },
+  { sies:'72', n:"Universidad de Valparaíso", a:'UV', tipo:'univ_cruch', s:'Valparaíso', m:'17,066', acred:6, g:'Si', r:'CUECH', ing:104, mg:0.7, act:249, gan:-2 },
+  { sies:'34', n:"Universidad de los Andes", a:'UANDES', tipo:'univ_priv', s:'Santiago', m:'20,595', acred:6, g:'No', r:'Privada', ing:260, mg:4.8, act:382, gan:-2 },
+  { sies:'77', n:"Universidad de Magallanes", a:'UMAG', tipo:'univ_cruch', s:'Punta Arenas', m:'4,500', acred:5, g:'Si', r:'CUECH', ing:33, mg:-5.2, act:71, gan:-3 },
+  { sies:'103', n:"IP Instituto de Estudios Bancarios Guillermo Subercaseaux", a:'Subercaseaux', tipo:'ip', s:'', m:'502', acred:-1, g:'', r:'', ing:4, mg:-138, act:12, gan:-4 },
+  { sies:'90', n:"Universidad Austral de Chile", a:'UACh', tipo:'univ_cruch', s:'Valdivia', m:'18,125', acred:6, g:'Si', r:'G9', ing:122, mg:2, act:269, gan:-4 },
+  { sies:'54', n:"Universidad Tecnológica de Chile INACAP", a:'INACAP U', tipo:'univ_priv', s:'Santiago', m:'338', acred:0, g:'No', r:'', ing:3, mg:-292, act:172, gan:-5 },
+  { sies:'76', n:"Universidad de la Frontera", a:'UFRO', tipo:'univ_cruch', s:'Temuco', m:'12,165', acred:6, g:'Si', r:'CUECH', ing:123, mg:-11.6, act:320, gan:-16 },
+];
+
+// ── HELPERS ──
+let sortCol = 'ing', sortAsc = false, filtered = [...DATA];
+
+function matNum(m) { return parseInt((m||'0').replace(/,/g,'')) || 0; }
+
+function tipoLabel(t) {
+  return {univ_cruch:'Univ. CRUCH', univ_priv:'Univ. Privada', ip:'Inst. Prof.', cft:'CFT'}[t] || t;
+}
+function tipoBadgeClass(t) {
+  return {univ_cruch:'badge-purple', univ_priv:'badge-blue', ip:'badge-teal', cft:'badge-orange'}[t] || 'badge-gray';
+}
+function acredClass(n) {
+  if (n >= 7) return 'c7'; if (n >= 6) return 'c6'; if (n >= 5) return 'c5';
+  if (n >= 4) return 'c4'; return 'c3';
+}
+function acredDots(n) {
+  if (n < 0) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  if (n === 0) return '<span class="badge badge-gray">Sin acred.</span>';
+  let html = '<div class="acred-bar"><div class="acred-stars">';
+  for (let i = 1; i <= 7; i++) {
+    const cl = i <= n ? `filled ${acredClass(n)}` : '';
+    html += `<div class="acred-dot ${cl}"></div>`;
+  }
+  html += `</div><span class="acred-num">${n}</span></div>`;
+  return html;
+}
+function gratBadge(g) {
+  if (!g) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  return g === 'Si' ? '<span class="badge badge-green">Gratuita</span>' : '<span class="badge badge-gray">No</span>';
+}
+function redBadge(r) {
+  if (!r) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  return `<span class="badge red-${r}">${r}</span>`;
+}
+function margenCell(mg) {
+  if (mg === undefined || mg === null) return '<span class="margen-zero">—</span>';
+  const arrow = mg > 0 ? '▲' : mg < 0 ? '▼' : '';
+  const cls = mg > 0 ? 'margen-pos' : mg < 0 ? 'margen-neg' : 'margen-zero';
+  const display = Math.abs(mg) > 200 ? (mg > 0 ? '>200%' : '<-200%') : mg.toFixed(1) + '%';
+  return `<span class="${cls}">${arrow} ${display}</span>`;
+}
+function mmCell(v, color) {
+  if (!v) return '<span style="color:var(--muted)">—</span>';
+  const c = color || 'var(--text)';
+  return `<span style="color:${c}">$${v.toLocaleString()} MM</span>`;
+}
+function ganCell(v) {
+  if (v === 0) return '<span style="color:var(--muted)">—</span>';
+  const sign = v > 0 ? '+' : '';
+  const cls = v > 0 ? '#4ade80' : '#f87171';
+  return `<span style="color:${cls};font-weight:500">${sign}${v.toLocaleString()} MM</span>`;
+}
+function matCell(m, tipo) {
+  if (!m) return '<span style="color:var(--muted)">—</span>';
+  return `<span style="font-weight:600">${m}</span>`;
+}
+
+// ── STATS ──
+function renderStats(data) {
+  const total = data.length;
+  const univs   = data.filter(d => d.tipo === 'univ_cruch' || d.tipo === 'univ_priv').length;
+  const ips     = data.filter(d => d.tipo === 'ip').length;
+  const cfts    = data.filter(d => d.tipo === 'cft').length;
+  const conPerd = data.filter(d => d.gan < 0).length;
+  const totalIng = data.reduce((s,d) => s + d.ing, 0);
+  const totalMat = data.reduce((s,d) => s + matNum(d.m), 0);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card blue"><div class="label">Total IES</div><div class="value">${total}</div><div class="sub">en el filtro</div></div>
+    <div class="stat-card purple"><div class="label">Universidades</div><div class="value">${univs}</div><div class="sub">CRUCH + privadas</div></div>
+    <div class="stat-card teal"><div class="label">IPs + CFTs</div><div class="value">${ips + cfts}</div><div class="sub">${ips} IPs · ${cfts} CFTs</div></div>
+    <div class="stat-card green"><div class="label">Matrícula 2025</div><div class="value">${totalMat > 0 ? (totalMat/1000).toFixed(0)+'k' : '—'}</div><div class="sub">estudiantes</div></div>
+    <div class="stat-card orange"><div class="label">Ingresos sistema</div><div class="value">$${(totalIng/1000).toFixed(0)}B</div><div class="sub">miles de millones $</div></div>
+    <div class="stat-card red"><div class="label">Con pérdidas</div><div class="value">${conPerd}</div><div class="sub">${Math.round(conPerd/total*100)}% del total</div></div>
+  `;
+}
+
+// ── SORT ──
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = (col === 'n' || col === 'tipo'); }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+  const th = document.querySelector(`th[data-col="${col}"]`);
+  if (th) { th.classList.add('sorted'); th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓'; }
+  applyFilters();
+}
+
+// ── FILTER + RENDER ──
+function applyFilters() {
+  const q      = document.getElementById('search').value.toLowerCase().trim();
+  const tiposChecked = [...document.querySelectorAll('.tipo-checks input:checked')].map(el => el.value);
+  const grat   = document.getElementById('filterGrat').value;
+  const red    = document.getElementById('filterRed').value;
+  const margen = document.getElementById('filterMargen').value;
+
+  filtered = DATA.filter(d => {
+    if (q && !d.n.toLowerCase().includes(q) && !d.a.toLowerCase().includes(q) && !(d.s||'').toLowerCase().includes(q)) return false;
+    if (tiposChecked.length && !tiposChecked.includes(d.tipo)) return false;
+    if (grat && d.g !== grat) return false;
+    if (red && d.r !== red) return false;
+    if (margen === 'pos' && d.gan <= 0) return false;
+    if (margen === 'neg' && d.gan >= 0) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    let va, vb;
+    if      (sortCol === 'm')    { va = matNum(a.m); vb = matNum(b.m); }
+    else if (sortCol === 'ing')  { va = a.ing; vb = b.ing; }
+    else if (sortCol === 'act')  { va = a.act; vb = b.act; }
+    else if (sortCol === 'mg')   { va = a.mg; vb = b.mg; }
+    else if (sortCol === 'gan')  { va = a.gan; vb = b.gan; }
+    else if (sortCol === 'acred'){ va = a.acred; vb = b.acred; }
+    else { va = (a[sortCol]||'').toLowerCase(); vb = (b[sortCol]||'').toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  renderStats(filtered);
+  document.getElementById('countLabel').textContent = `${filtered.length} instituciones`;
+  renderTable();
+  renderCards();
+}
+
+function renderTable() {
+  document.getElementById('tableBody').innerHTML = filtered.map(d => `
+    <tr>
+      <td>
+        <div class="ies-name">${d.n}</div>
+        ${d.a ? `<div class="ies-sub">${d.a}${d.s ? ' · ' + d.s : ''}</div>` : (d.s ? `<div class="ies-sub">${d.s}</div>` : '')}
+      </td>
+      <td><span class="badge ${tipoBadgeClass(d.tipo)}">${tipoLabel(d.tipo)}</span></td>
+      <td style="text-align:right">${matCell(d.m, d.tipo)}</td>
+      <td>${acredDots(d.acred)}</td>
+      <td>${gratBadge(d.g)}</td>
+      <td>${redBadge(d.r)}</td>
+      <td style="text-align:right">${mmCell(d.ing, '#a78bfa')}</td>
+      <td style="text-align:right">${mmCell(d.act, '#60a5fa')}</td>
+      <td style="text-align:right">${margenCell(d.mg)}</td>
+      <td style="text-align:right">${ganCell(d.gan)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderCards() {
+  document.getElementById('cardsGrid').innerHTML = filtered.map(d => {
+    const mgColor = d.mg > 0 ? '#4ade80' : '#f87171';
+    const ganColor = d.gan > 0 ? '#4ade80' : d.gan < 0 ? '#f87171' : '#8892a4';
+    const ganText = d.gan !== 0 ? (d.gan > 0 ? '+' : '') + d.gan.toLocaleString() + ' MM' : '—';
+    return `
+    <div class="card">
+      <div class="card-header">
+        <div style="flex:1">
+          <div style="margin-bottom:6px"><span class="badge ${tipoBadgeClass(d.tipo)}">${tipoLabel(d.tipo)}</span></div>
+          <div class="card-name">${d.n}</div>
+          ${d.s ? `<div class="ies-sub" style="margin-top:2px">📍 ${d.s}</div>` : ''}
+        </div>
+        <div class="card-acronimo">${(d.a||'—').substring(0,8)}</div>
+      </div>
+      <div class="card-stats">
+        <div class="card-stat-item">
+          <div class="card-stat-label">Ingresos op.</div>
+          <div class="card-stat-value" style="color:#a78bfa">${d.ing ? '$'+d.ing.toLocaleString()+' MM' : '—'}</div>
+        </div>
+        <div class="card-stat-item">
+          <div class="card-stat-label">Activos</div>
+          <div class="card-stat-value" style="color:#60a5fa">${d.act ? '$'+d.act.toLocaleString()+' MM' : '—'}</div>
+        </div>
+        <div class="card-stat-item">
+          <div class="card-stat-label">Margen op.</div>
+          <div class="card-stat-value" style="color:${mgColor}">${d.mg !== undefined ? (Math.abs(d.mg)>200 ? (d.mg>0?'>200%':'<−200%') : d.mg.toFixed(1)+'%') : '—'}</div>
+        </div>
+        <div class="card-stat-item">
+          <div class="card-stat-label">Resultado</div>
+          <div class="card-stat-value" style="color:${ganColor}">${ganText}</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        ${d.acred >= 0 ? acredDots(d.acred) : ''}
+        ${d.g ? gratBadge(d.g) : ''}
+        ${d.r ? redBadge(d.r) : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearFilters() {
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.tipo-checks input').forEach(el => el.checked = false);
+  document.getElementById('filterGrat').value = '';
+  document.getElementById('filterRed').value = '';
+  document.getElementById('filterMargen').value = '';
+  applyFilters();
+}
+
+function setView(v) {
+  const tw = document.getElementById('tableWrap');
+  const cg = document.getElementById('cardsGrid');
+  if (v === 'table') {
+    tw.classList.remove('hidden'); cg.classList.remove('active');
+    document.getElementById('btnTable').classList.add('active');
+    document.getElementById('btnCards').classList.remove('active');
+  } else {
+    tw.classList.add('hidden'); cg.classList.add('active');
+    document.getElementById('btnCards').classList.add('active');
+    document.getElementById('btnTable').classList.remove('active');
+  }
+}
+
+sortBy('ing');
+</script>
+</body>
+</html>
