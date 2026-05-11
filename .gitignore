@@ -1,0 +1,9 @@
+# Consolidación LATAM en progreso — no subir hasta que esté listo (decisión Hernán 2026-05-11)
+_build_panel_latam.js
+_data_chile.js
+_extract_chile_data.js
+index_v2_latam.html
+
+# Sistema
+.DS_Store
+Thumbs.db
