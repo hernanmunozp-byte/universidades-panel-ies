@@ -4,6 +4,9 @@ _data_chile.js
 _extract_chile_data.js
 index_v2_latam.html
 
+# Archivos archivados locales (consolidación 2026-05-12)
+_archive/
+
 # Sistema
 .DS_Store
 Thumbs.db
