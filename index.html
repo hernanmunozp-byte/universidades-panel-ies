@@ -77,6 +77,10 @@
   .badge-teal   { background: rgba(20,184,166,.15);  color: #2dd4bf; }
   .badge-indigo { background: rgba(99,102,241,.12);  color: #a78bfa; }
   .badge-pink   { background: rgba(236,72,153,.15);  color: #f472b6; }
+  .badge-cerrada { background: rgba(239,68,68,.22);  color: #fca5a5; border: 1px solid rgba(239,68,68,.45); letter-spacing: 0.4px; }
+
+  tbody tr.row-cerrada { background: rgba(239,68,68,.04); }
+  tbody tr.row-cerrada:hover { background: rgba(239,68,68,.09); }
 
   .acred-bar { display: flex; align-items: center; gap: 6px; }
   .acred-stars { display: flex; gap: 2px; }
@@ -280,7 +284,7 @@ const DATA = [
   { sies:'120', n:"IP Diego Portales", a:'IPDP', tipo:'ip', s:'', m:'2,039', acred:-1, g:'', r:'', ing:3, mg:9.8, act:6, gan:0 },
   { sies:'99', n:"IP Agrario Adolfo Matthei", a:'IPAM', tipo:'ip', s:'', m:'825', acred:-1, g:'', r:'', ing:3, mg:5.1, act:6, gan:0 },
   { sies:'1', n:"Universidad Gabriela Mistral", a:'UGM', tipo:'univ_priv', s:'Santiago', m:'4,687', acred:3, g:'No', r:'CUP', ing:14, mg:4.9, act:13, gan:0, sis:'U+' },
-  { sies:'46', n:"Universidad de Aconcagua", a:'UAC', tipo:'univ_priv', s:'Santiago', m:'3,842', acred:0, g:'No', r:'', ing:8, mg:1.3, act:9, gan:0, sis:'Propio' },
+  { sies:'46', n:"Universidad de Aconcagua", a:'UAC', tipo:'univ_priv', s:'San Felipe', m:'3,842', acred:0, g:'No', r:'', ing:8, mg:1.3, act:9, gan:0, sis:'Propio' },
   { sies:'137', n:"IP EATRI", a:'EATRI', tipo:'ip', s:'', m:'801', acred:-1, g:'', r:'', ing:2, mg:15, act:3, gan:0, sis:'Ozmo' },
   { sies:'908', n:"CFT de la Región de Antofagasta", a:'CFT Antofagasta', tipo:'cft', s:'Antofagasta', m:'526', acred:-1, g:'', r:'', ing:2, mg:10.3, act:7, gan:0, sis:'U+' },
   { sies:'693', n:"IP Projazz", a:'Projazz', tipo:'ip', s:'', m:'390', acred:-1, g:'', r:'', ing:1, mg:13.4, act:2, gan:0 },
@@ -314,7 +318,7 @@ const DATA = [
   { sies:'48', n:"Universidad Los Leones", a:'ULLEO', tipo:'univ_priv', s:'Santiago', m:'200', acred:0, g:'No', r:'', ing:0, mg:-100, act:2, gan:0 },
   { sies:'633', n:"CFT Teodoro Wickel Kluwen", a:'Wickel', tipo:'cft', s:'', m:'312', acred:-1, g:'', r:'', ing:4, mg:-5.6, act:1, gan:0, sis:'U+' },
   { sies:'906', n:"CFT de la Región de Tarapacá", a:'CFT Tarapacá', tipo:'cft', s:'Tarapacá', m:'1,778', acred:-1, g:'', r:'', ing:3, mg:-8, act:8, gan:0 },
-  { sies:'7', n:"Universidad Bolivariana", a:'UB', tipo:'univ_priv', s:'Santiago', m:'294', acred:0, g:'No', r:'', ing:1, mg:-43, act:2, gan:0, sis:'Propio' },
+  { sies:'7', n:"Universidad Bolivariana", a:'UB', tipo:'univ_priv', s:'Santiago', m:'294', acred:0, g:'No', r:'', ing:1, mg:-43, act:2, gan:0, sis:'Propio', er:'cerrada', erNota:'Decreto Exento 293 — 2026-05-05 · cierre 31-12-2031 (Ley 20.800)' },
   { sies:'913', n:"CFT de la Región del Libertador Bernardo O'Higgins", a:"CFT O'Higgins", tipo:'cft', s:"O'Higgins", m:'1,599', acred:-1, g:'', r:'', ing:2, mg:-16.1, act:5, gan:0, sis:'U+' },
   { sies:'909', n:"CFT de la Región de Atacama", a:'CFT Atacama', tipo:'cft', s:'Atacama', m:'402', acred:-1, g:'', r:'', ing:1, mg:-34.9, act:9, gan:0 },
   { sies:'2', n:"Universidad Finis Terrae", a:'UFT', tipo:'univ_priv', s:'Santiago', m:'10,468', acred:5, g:'Si', r:'CUP', ing:45, mg:1.1, act:97, gan:0, sis:'Banner' },
@@ -468,9 +472,9 @@ function applyFilters() {
 
 function renderTable() {
   document.getElementById('tableBody').innerHTML = filtered.map(d => `
-    <tr>
+    <tr class="${d.er === 'cerrada' ? 'row-cerrada' : ''}">
       <td>
-        <div class="ies-name">${d.n}</div>
+        <div class="ies-name">${d.n}${d.er === 'cerrada' ? ` <span class="badge badge-cerrada" title="${d.erNota || 'Reconocimiento revocado por MINEDUC'}">CERRADA</span>` : ''}</div>
         ${d.a ? `<div class="ies-sub">${d.a}${d.s ? ' · ' + d.s : ''}</div>` : (d.s ? `<div class="ies-sub">${d.s}</div>` : '')}
       </td>
       <td><span class="badge ${tipoBadgeClass(d.tipo)}">${tipoLabel(d.tipo)}</span></td>
@@ -496,7 +500,7 @@ function renderCards() {
     <div class="card">
       <div class="card-header">
         <div style="flex:1">
-          <div style="margin-bottom:6px"><span class="badge ${tipoBadgeClass(d.tipo)}">${tipoLabel(d.tipo)}</span></div>
+          <div style="margin-bottom:6px"><span class="badge ${tipoBadgeClass(d.tipo)}">${tipoLabel(d.tipo)}</span>${d.er === 'cerrada' ? ` <span class="badge badge-cerrada" title="${d.erNota || 'Reconocimiento revocado'}">CERRADA</span>` : ''}</div>
           <div class="card-name">${d.n}</div>
           ${d.s ? `<div class="ies-sub" style="margin-top:2px">📍 ${d.s}</div>` : ''}
         </div>
