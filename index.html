@@ -155,7 +155,8 @@
     <label><input type="checkbox" value="univ_cruch" onchange="applyFilters()"> Univ. CRUCH</label>
     <label><input type="checkbox" value="univ_priv"  onchange="applyFilters()"> Univ. Privadas</label>
     <label><input type="checkbox" value="ip"         onchange="applyFilters()"> Inst. Prof.</label>
-    <label><input type="checkbox" value="cft"        onchange="applyFilters()"> CFT</label>
+    <label><input type="checkbox" value="cft_estatal" onchange="applyFilters()"> CFT Estatal</label>
+    <label><input type="checkbox" value="cft_priv"    onchange="applyFilters()"> CFT Privado</label>
   </div>
   <select id="filterGrat" onchange="applyFilters()">
     <option value="">Gratuidad: todas</option>
@@ -252,7 +253,7 @@ const DATA = [
   { sies:'629', n:"CFT PUCV", a:'CFT PUCV', tipo:'cft', s:'', m:'8,316', acred:-1, g:'', r:'', ing:14, mg:13.7, act:20, gan:2, sis:'U+' },
   { sies:'73', n:"Universidad de Antofagasta", a:'UA', tipo:'univ_cruch', s:'Antofagasta', m:'7,279', acred:5, g:'Si', r:'CUECH', ing:64, mg:4.2, act:128, gan:2, sis:'UCampus' },
   { sies:'82', n:"Universidad Metropolitana de Ciencias de la Educación", a:'UMCE', tipo:'univ_cruch', s:'Santiago', m:'4,278', acred:4, g:'Si', r:'CUECH', ing:31, mg:4.9, act:68, gan:1, sis:'UCampus' },
-  { sies:'914', n:"CFT de la Región del Maule", a:'CFT Maule', tipo:'cft', s:'Talca', m:'1,447', acred:-1, g:'', r:'', ing:4, mg:40.2, act:11, gan:1, sis:'U+' },
+  { sies:'914', n:"CFT de la Región del Maule", a:'CFT Maule', tipo:'cft', estatal:1, s:'Talca', m:'1,447', acred:-1, g:'', r:'', ing:4, mg:40.2, act:11, gan:1, sis:'U+' },
   { sies:'113', n:"IP IPG", a:'IPG', tipo:'ip', s:'Multi-sede (7)', m:'6,035', acred:4, g:'Si', r:'', ing:5, mg:21.7, act:6, gan:1, sis:'U+' },
   { sies:'45', n:"Universidad del Desarrollo", a:'UDD', tipo:'univ_priv', s:'Concepción', m:'23,008', acred:6, g:'No', r:'', ing:150, mg:3.1, act:196, gan:1 },
   { sies:'144', n:"IP de Arte y Comunicación - ARCOS", a:'ARCOS', tipo:'ip', s:'', m:'1,963', acred:-1, g:'', r:'', ing:14, mg:15.3, act:25, gan:1 },
@@ -264,11 +265,11 @@ const DATA = [
   { sies:'69', n:"Universidad Alberto Hurtado", a:'UAH', tipo:'univ_priv', s:'Santiago', m:'8,960', acred:5, g:'Si', r:'Privada', ing:43, mg:4.4, act:47, gan:1, sis:'UCampus' },
   { sies:'11', n:"Universidad Academia de Humanismo Cristiano", a:'UAHC', tipo:'univ_priv', s:'Santiago', m:'4,207', acred:4, g:'Si', r:'CUP', ing:15, mg:10.2, act:17, gan:1, sis:'U+' },
   { sies:'81', n:"Universidad Arturo Prat", a:'UNAP', tipo:'univ_cruch', s:'Iquique', m:'9,819', acred:5, g:'Si', r:'CUECH', ing:41, mg:2.2, act:188, gan:1, sis:'Propio' },
-  { sies:'919', n:"CFT de la Región de Aysén", a:'CFT Aysén', tipo:'cft', s:'Aysén', m:'633', acred:-1, g:'', r:'', ing:2, mg:24.6, act:8, gan:1 },
+  { sies:'919', n:"CFT de la Región de Aysén", a:'CFT Aysén', tipo:'cft', estatal:1, s:'Aysén', m:'633', acred:-1, g:'', r:'', ing:2, mg:24.6, act:8, gan:1 },
   { sies:'22', n:"Universidad de Viña del Mar", a:'UVM', tipo:'univ_priv', s:'Viña del Mar', m:'10,806', acred:4, g:'No', r:'CUP', ing:37, mg:3.1, act:29, gan:1, sis:'Propio' },
   { sies:'68', n:"Universidad Miguel de Cervantes", a:'UMC', tipo:'univ_priv', s:'Santiago', m:'3,252', acred:3, g:'No', r:'CUP', ing:4, mg:8.8, act:8, gan:1, sis:'Propio' },
   { sies:'367', n:"CFT San Agustín", a:'CFT S.Agustín', tipo:'cft', s:'', m:'7,591', acred:-1, g:'', r:'', ing:14, mg:5.8, act:23, gan:0 },
-  { sies:'917', n:"CFT de la Región de Los Ríos", a:'CFT Los Ríos', tipo:'cft', s:'Los Ríos', m:'1,596', acred:-1, g:'', r:'', ing:4, mg:10, act:10, gan:0, sis:'U+' },
+  { sies:'917', n:"CFT de la Región de Los Ríos", a:'CFT Los Ríos', tipo:'cft', estatal:1, s:'Los Ríos', m:'1,596', acred:-1, g:'', r:'', ing:4, mg:10, act:10, gan:0, sis:'U+' },
   { sies:'91', n:"Universidad Católica del Norte", a:'UCN', tipo:'univ_cruch', s:'Antofagasta', m:'12,329', acred:6, g:'Si', r:'G9', ing:87, mg:1, act:241, gan:0, sis:'Banner' },
   { sies:'17', n:"Universidad SEK", a:'USEK', tipo:'univ_priv', s:'Santiago', m:'2,653', acred:0, g:'No', r:'CUP', ing:9, mg:-0.1, act:22, gan:0, sis:'Propio' },
   { sies:'176', n:"IP del Valle Central", a:'IVC', tipo:'ip', s:'Talca', m:'1,565', acred:-1, g:'', r:'', ing:3, mg:10.6, act:14, gan:0, sis:'U+' },
@@ -276,28 +277,28 @@ const DATA = [
   { sies:'730', n:"CFT Escuela Culinaria Francesa - ECOLE", a:'ECOLE', tipo:'cft', s:'', m:'211', acred:-1, g:'', r:'', ing:2, mg:14.3, act:3, gan:0, sis:'U+' },
   { sies:'129', n:"IP Escuela Moderna de Música", a:'EMM', tipo:'ip', s:'', m:'843', acred:-1, g:'', r:'', ing:5, mg:8.1, act:7, gan:0 },
   { sies:'676', n:"IP Instituto Internacional de Artes Culinarias y Servicios", a:'IIAC', tipo:'ip', s:'', m:'604', acred:-1, g:'', r:'', ing:4, mg:7.1, act:4, gan:0, sis:'U+' },
-  { sies:'916', n:"CFT de la Región de La Araucanía", a:'CFT Araucanía', tipo:'cft', s:'Araucanía', m:'1,886', acred:-1, g:'', r:'', ing:3, mg:10, act:9, gan:0 },
+  { sies:'916', n:"CFT de la Región de La Araucanía", a:'CFT Araucanía', tipo:'cft', estatal:1, s:'Araucanía', m:'1,886', acred:-1, g:'', r:'', ing:3, mg:10, act:9, gan:0 },
   { sies:'218', n:"CFT de ENAC", a:'ENAC', tipo:'cft', s:'', m:'8,890', acred:-1, g:'', r:'', ing:14, mg:7.8, act:34, gan:0 },
   { sies:'104', n:"IP Escuela de Contadores Auditores de Santiago", a:'ECAS', tipo:'ip', s:'', m:'1,895', acred:-1, g:'', r:'', ing:4, mg:7.2, act:7, gan:0, sis:'U+' },
-  { sies:'910', n:"CFT de la Región de Coquimbo", a:'CFT Coquimbo', tipo:'cft', s:'Coquimbo', m:'1,496', acred:-1, g:'', r:'', ing:3, mg:8.5, act:6, gan:0, sis:'U+' },
+  { sies:'910', n:"CFT de la Región de Coquimbo", a:'CFT Coquimbo', tipo:'cft', estatal:1, s:'Coquimbo', m:'1,496', acred:-1, g:'', r:'', ing:3, mg:8.5, act:6, gan:0, sis:'U+' },
   { sies:'312', n:"CFT CENCO", a:'CENCO', tipo:'cft', s:'', m:'5,190', acred:-1, g:'', r:'', ing:3, mg:9.9, act:2, gan:0 },
   { sies:'120', n:"IP Diego Portales", a:'IPDP', tipo:'ip', s:'', m:'2,039', acred:-1, g:'', r:'', ing:3, mg:9.8, act:6, gan:0 },
-  { sies:'99', n:"IP Agrario Adolfo Matthei", a:'IPAM', tipo:'ip', s:'', m:'825', acred:-1, g:'', r:'', ing:3, mg:5.1, act:6, gan:0 },
+  { sies:'99', n:"IP Agrario Adolfo Matthei", a:'IPAM', tipo:'ip', s:'', m:'825', acred:-1, g:'', r:'', ing:3, mg:5.1, act:6, gan:0, sis:'U+' },
   { sies:'1', n:"Universidad Gabriela Mistral", a:'UGM', tipo:'univ_priv', s:'Santiago', m:'4,687', acred:3, g:'No', r:'CUP', ing:14, mg:4.9, act:13, gan:0, sis:'U+' },
   { sies:'46', n:"Universidad de Aconcagua", a:'UAC', tipo:'univ_priv', s:'San Felipe', m:'3,842', acred:0, g:'No', r:'', ing:8, mg:1.3, act:9, gan:0, sis:'U+' },
   { sies:'137', n:"IP EATRI", a:'EATRI', tipo:'ip', s:'', m:'801', acred:-1, g:'', r:'', ing:2, mg:15, act:3, gan:0, sis:'Ozmo' },
-  { sies:'908', n:"CFT de la Región de Antofagasta", a:'CFT Antofagasta', tipo:'cft', s:'Antofagasta', m:'526', acred:-1, g:'', r:'', ing:2, mg:10.3, act:7, gan:0, sis:'U+' },
+  { sies:'908', n:"CFT de la Región de Antofagasta", a:'CFT Antofagasta', tipo:'cft', estatal:1, s:'Antofagasta', m:'526', acred:-1, g:'', r:'', ing:2, mg:10.3, act:7, gan:0, sis:'U+' },
   { sies:'693', n:"IP Projazz", a:'Projazz', tipo:'ip', s:'', m:'390', acred:-1, g:'', r:'', ing:1, mg:13.4, act:2, gan:0 },
   { sies:'450', n:"CFT Lota-Arauco", a:'Lota-Arauco', tipo:'cft', s:'', m:'2,022', acred:-1, g:'', r:'', ing:3, mg:0.8, act:4, gan:0 },
   { sies:'171', n:"IP del Comercio", a:'IPC', tipo:'ip', s:'', m:'7,102', acred:-1, g:'', r:'', ing:5, mg:5.2, act:5, gan:0 },
   { sies:'75', n:"Universidad del Bío-Bío", a:'UBB', tipo:'univ_cruch', s:'Concepción', m:'12,051', acred:5, g:'Si', r:'CUECH', ing:71, mg:2.9, act:116, gan:0, sis:'Propio' },
   { sies:'193', n:"IP Instituto Nacional del Futbol", a:'INF', tipo:'ip', s:'', m:'822', acred:-1, g:'', r:'', ing:2, mg:4.8, act:2, gan:0 },
-  { sies:'902', n:"CFT de la Región de Arica y Parinacota", a:'CFT Arica', tipo:'cft', s:'Arica', m:'2,816', acred:-1, g:'', r:'', ing:5, mg:3.7, act:18, gan:0 },
-  { sies:'911', n:"CFT de la Región de Valparaíso", a:'CFT Valparaíso', tipo:'cft', s:'Valparaíso', m:'1,934', acred:-1, g:'', r:'', ing:4, mg:3.1, act:8, gan:0, sis:'U+' },
+  { sies:'902', n:"CFT de la Región de Arica y Parinacota", a:'CFT Arica', tipo:'cft', estatal:1, s:'Arica', m:'2,816', acred:-1, g:'', r:'', ing:5, mg:3.7, act:18, gan:0 },
+  { sies:'911', n:"CFT de la Región de Valparaíso", a:'CFT Valparaíso', tipo:'cft', estatal:1, s:'Valparaíso', m:'1,934', acred:-1, g:'', r:'', ing:4, mg:3.1, act:8, gan:0, sis:'U+' },
   { sies:'257', n:"CFT Juan Bohon", a:'J.Bohon', tipo:'cft', s:'', m:'1,219', acred:-1, g:'', r:'', ing:2, mg:6.8, act:1, gan:0 },
   { sies:'534', n:"CFT Asiste", a:'Asiste', tipo:'cft', s:'', m:'323', acred:-1, g:'', r:'', ing:0, mg:35.6, act:0, gan:0 },
   { sies:'155', n:"IP Los Leones", a:'IPLL', tipo:'ip', s:'', m:'3,116', acred:-1, g:'', r:'', ing:5, mg:4.3, act:32, gan:0, sis:'U+' },
-  { sies:'915', n:"CFT de la Región del Biobío", a:'CFT Biobío', tipo:'cft', s:'Biobío', m:'635', acred:-1, g:'', r:'', ing:2, mg:2.7, act:2, gan:0, sis:'U+' },
+  { sies:'915', n:"CFT de la Región del Biobío", a:'CFT Biobío', tipo:'cft', estatal:1, s:'Biobío', m:'635', acred:-1, g:'', r:'', ing:2, mg:2.7, act:2, gan:0, sis:'U+' },
   { sies:'241', n:"CFT Instituto Superior Alemán de Comercio - INSALCO", a:'INSALCO', tipo:'cft', s:'', m:'76', acred:-1, g:'', r:'', ing:0, mg:7.7, act:0, gan:0 },
   { sies:'83', n:"Universidad de Playa Ancha de Ciencias de la Educación", a:'UPLA', tipo:'univ_cruch', s:'Valparaíso', m:'6,798', acred:5, g:'Si', r:'CUECH', ing:41, mg:1.8, act:74, gan:0, sis:'Propio' },
   { sies:'435', n:"CFT del Medio Ambiente - IDMA", a:'IDMA', tipo:'cft', s:'', m:'604', acred:-1, g:'', r:'', ing:1, mg:6.8, act:3, gan:0, sis:'U+' },
@@ -310,17 +311,17 @@ const DATA = [
   { sies:'319', n:"CFT Prodata", a:'Prodata', tipo:'cft', s:'', m:'176', acred:-1, g:'', r:'', ing:0, mg:-14.3, act:0, gan:0 },
   { sies:'328', n:"CFT Instituto Superior de Estudios Jurídicos Canon", a:'Canon', tipo:'cft', s:'', m:'54', acred:-1, g:'', r:'', ing:0, mg:-57.4, act:0, gan:0 },
   { sies:'331', n:"CFT Iprosec", a:'Iprosec', tipo:'cft', s:'', m:'44', acred:-1, g:'', r:'', ing:0, mg:-10.3, act:2, gan:0 },
-  { sies:'920', n:"CFT de la Región de Magallanes y la Antártica Chilena", a:'CFT Magallanes', tipo:'cft', s:'Magallanes', m:'182', acred:-1, g:'', r:'', ing:2, mg:-3.7, act:4, gan:0 },
+  { sies:'920', n:"CFT de la Región de Magallanes y la Antártica Chilena", a:'CFT Magallanes', tipo:'cft', estatal:1, s:'Magallanes', m:'182', acred:-1, g:'', r:'', ing:2, mg:-3.7, act:4, gan:0 },
   { sies:'701', n:"CFT Manpower", a:'Manpower', tipo:'cft', s:'', m:'1,110', acred:-1, g:'', r:'', ing:2, mg:-4.3, act:1, gan:0, sis:'U+' },
   { sies:'959', n:"CFT Academia Chilena de Yoga", a:'Yoga', tipo:'cft', s:'', m:'94', acred:-1, g:'', r:'', ing:0, mg:-48.1, act:0, gan:0, sis:'U+' },
-  { sies:'918', n:"CFT de la Región de Los Lagos", a:'CFT Los Lagos', tipo:'cft', s:'Los Lagos', m:'644', acred:-1, g:'', r:'', ing:2, mg:-11.3, act:6, gan:0 },
-  { sies:'912', n:"CFT de la Región Metropolitana", a:'CFT RM', tipo:'cft', s:'Santiago', m:'959', acred:-1, g:'', r:'', ing:1, mg:-16.1, act:5, gan:0, sis:'U+' },
+  { sies:'918', n:"CFT de la Región de Los Lagos", a:'CFT Los Lagos', tipo:'cft', estatal:1, s:'Los Lagos', m:'644', acred:-1, g:'', r:'', ing:2, mg:-11.3, act:6, gan:0 },
+  { sies:'912', n:"CFT de la Región Metropolitana", a:'CFT RM', tipo:'cft', estatal:1, s:'Santiago', m:'959', acred:-1, g:'', r:'', ing:1, mg:-16.1, act:5, gan:0, sis:'U+' },
   { sies:'48', n:"Universidad Los Leones", a:'ULLEO', tipo:'univ_priv', s:'Santiago', m:'200', acred:0, g:'No', r:'', ing:0, mg:-100, act:2, gan:0 },
   { sies:'633', n:"CFT Teodoro Wickel Kluwen", a:'Wickel', tipo:'cft', s:'', m:'312', acred:-1, g:'', r:'', ing:4, mg:-5.6, act:1, gan:0, sis:'U+' },
-  { sies:'906', n:"CFT de la Región de Tarapacá", a:'CFT Tarapacá', tipo:'cft', s:'Tarapacá', m:'1,778', acred:-1, g:'', r:'', ing:3, mg:-8, act:8, gan:0 },
+  { sies:'906', n:"CFT de la Región de Tarapacá", a:'CFT Tarapacá', tipo:'cft', estatal:1, s:'Tarapacá', m:'1,778', acred:-1, g:'', r:'', ing:3, mg:-8, act:8, gan:0 },
   { sies:'7', n:"Universidad Bolivariana", a:'UB', tipo:'univ_priv', s:'Santiago', m:'294', acred:0, g:'No', r:'', ing:1, mg:-43, act:2, gan:0, sis:'U+', er:'cerrada', erNota:'Decreto Exento 293 — 2026-05-05 · cierre 31-12-2031 (Ley 20.800)' },
-  { sies:'913', n:"CFT de la Región del Libertador Bernardo O'Higgins", a:"CFT O'Higgins", tipo:'cft', s:"O'Higgins", m:'1,599', acred:-1, g:'', r:'', ing:2, mg:-16.1, act:5, gan:0, sis:'U+' },
-  { sies:'909', n:"CFT de la Región de Atacama", a:'CFT Atacama', tipo:'cft', s:'Atacama', m:'402', acred:-1, g:'', r:'', ing:1, mg:-34.9, act:9, gan:0 },
+  { sies:'913', n:"CFT de la Región del Libertador Bernardo O'Higgins", a:"CFT O'Higgins", tipo:'cft', estatal:1, s:"O'Higgins", m:'1,599', acred:-1, g:'', r:'', ing:2, mg:-16.1, act:5, gan:0, sis:'U+' },
+  { sies:'909', n:"CFT de la Región de Atacama", a:'CFT Atacama', tipo:'cft', estatal:1, s:'Atacama', m:'402', acred:-1, g:'', r:'', ing:1, mg:-34.9, act:9, gan:0 },
   { sies:'2', n:"Universidad Finis Terrae", a:'UFT', tipo:'univ_priv', s:'Santiago', m:'10,468', acred:5, g:'Si', r:'CUP', ing:45, mg:1.1, act:97, gan:0, sis:'Banner' },
   { sies:'162', n:"IP San Sebastián", a:'IPSS', tipo:'ip', s:'', m:'2,522', acred:-1, g:'', r:'', ing:3, mg:-14.5, act:2, gan:-1 },
   { sies:'132', n:"IP ESUCOMEX", a:'ESUCOMEX', tipo:'ip', s:'', m:'', acred:-1, g:'', r:'', ing:0, mg:-252, act:1, gan:-1 },
@@ -440,7 +441,10 @@ function applyFilters() {
 
   filtered = DATA.filter(d => {
     if (q && !d.n.toLowerCase().includes(q) && !d.a.toLowerCase().includes(q) && !(d.s||'').toLowerCase().includes(q)) return false;
-    if (tiposChecked.length && !tiposChecked.includes(d.tipo)) return false;
+    if (tiposChecked.length) {
+      const tipoExpandido = d.tipo === 'cft' ? (d.estatal ? 'cft_estatal' : 'cft_priv') : d.tipo;
+      if (!tiposChecked.includes(tipoExpandido)) return false;
+    }
     if (grat && d.g !== grat) return false;
     if (red && d.r !== red) return false;
     if (margen === 'pos' && d.gan <= 0) return false;
